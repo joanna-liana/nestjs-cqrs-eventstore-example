@@ -20,13 +20,19 @@ services:
       - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1001@:9093
       - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=true
       - ALLOW_PLAINTEXT_LISTENER=yes
+    healthcheck:
+      test: nc -vz localhost 9094
+      interval: 10s
+      timeout: 10s
+      retries: 3
 
   kafka-ui:
     container_name: kafka-ui
     image: provectuslabs/kafka-ui:latest
-    volumes:
-      - ./kafka-ui/config.yml:/etc/kafkaui/dynamic_config.yaml
     environment:
+      KAFKA_CLUSTERS_0_NAME: kafka
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+      KAFKA_CLUSTERS_0_METRICS_PORT: 19101
       DYNAMIC_CONFIG_ENABLED: 'true'
     depends_on:
       - kafka
