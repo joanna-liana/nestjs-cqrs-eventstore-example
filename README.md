@@ -6,16 +6,22 @@ This project uses a custom Kafka event bus for usage with the CQRS module.
 
 ## Setup
 
-To run the project, be sure to spin up the necessary Kafka/Zookeeper nodes using:
+To run the project, be sure to spin up the necessary Kafka nodes using:
 
 ````
 docker-compose up
 ````
 
-Once the Kafka broker is running you can start the Nest service using:
+Once the Kafka broker is running, you can start the Nest service. Before the first run, make sure to copy `.env.example` as `.env`.
+Next you can start the service with:
 
 ```
 $ npm start
+```
+
+or in the debug mode with:
+```
+$ npm run start:debug
 ```
 
 To test the end-to-end flow of the commands, events and sagas, execute the following curl command
@@ -35,10 +41,10 @@ Async HeroFoundItemEvent...
 ```
 
 Its also a good idea to inspect the message queue to ensure the necessary events have been
-sent. This can be done using the Kafka console consumer tool:
+sent. This can be done using the Kafka UI that spins up as part of the Docker Compose:
 
 ````
-./kafka-console-consumer.sh --bootstrap-server queue-kafka-bootstrap:9092 --topic HeroFoundItemEvent
+http://localhost:8080/ui/clusters/kafka/all-topics/HeroFoundItemEvent
 ````
 
 ## Stay in touch
