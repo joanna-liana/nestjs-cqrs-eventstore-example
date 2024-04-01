@@ -7,9 +7,10 @@ import { HeroesGameController } from './heroes.controller';
 import { QueryHandlers } from './queries/handlers';
 import { HeroRepository } from './repository/hero.repository';
 import { HeroesGameSagas } from './sagas/heroes.sagas';
-import KafkaPublisher from './messaging/KafkaPublisher';
-import KafkaSubscriber from './messaging/KafkaSubscriber';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
+import EventStorePublisher from './messaging/event-store.publisher';
+import EventStoreSubscriber from './messaging/event-store.subscriber';
+import { EventStoreDBClient } from '@eventstore/db-client';
 
 @Module({
   imports: [CqrsModule, ConfigModule.forRoot()],
@@ -24,29 +25,27 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       useValue: Events,
     },
     {
-      provide: 'KAFKA_BROKER',
-      useFactory: (configService: ConfigService) => {
-        return configService.get('KAFKA_BROKER')
-      },
-      inject: [ConfigService]
+      provide: 'EVENT_STORE',
+      useValue: new EventStoreDBClient(
+        { endpoint: process.env.EVENT_STORE_ENDPOINT },
+        { insecure: true },
+      )
     },
     HeroesGameSagas,
-    KafkaPublisher,
-    KafkaSubscriber
+    EventStoreSubscriber,
+    EventStorePublisher
   ],
 })
 export class HeroesGameModule implements OnModuleInit {
   constructor(
-    private readonly event$: EventBus,
-    private readonly kafkaPublisher: KafkaPublisher,
-    private readonly kafkaSubscriber: KafkaSubscriber,
+    private readonly eventBus$: EventBus,
+    private readonly eventStoreSubscriber: EventStoreSubscriber,
+    private readonly eventStorePublisher: EventStorePublisher,
   ) {}
 
   async onModuleInit(): Promise<any> {
-    await this.kafkaSubscriber.connect();
-    this.kafkaSubscriber.bridgeEventsTo(this.event$.subject$);
-
-    await this.kafkaPublisher.connect();
-    this.event$.publisher = this.kafkaPublisher;
+    this.eventStoreSubscriber.connect();
+    this.eventStoreSubscriber.bridgeEventsTo(this.eventBus$.subject$);
+    this.eventBus$.publisher = this.eventStorePublisher;
   }
 }

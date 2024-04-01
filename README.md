@@ -2,17 +2,17 @@
 
 [Nest](https://github.com/kamilmysliwiec/nest) framework [CQRS module](https://github.com/kamilmysliwiec/nest-cqrs) usage example.
 
-This project uses a custom Kafka event bus for usage with the CQRS module.
+This project uses a custom EventStoreDB event bus for usage with the CQRS module.
 
 ## Setup
 
-To run the project, be sure to spin up the necessary Kafka nodes using:
+To run the project, be sure to spin up the necessary EventStoreDB nodes using:
 
 ````
 docker-compose up
 ````
 
-Once the Kafka broker is running, you can start the Nest service. Before the first run, make sure to copy `.env.example` as `.env`.
+Once EventStoreDB is running, you can start the Nest service. Before the first run, make sure to copy `.env.example` as `.env`.
 Next you can start the service with:
 
 ```
@@ -41,10 +41,10 @@ Async HeroFoundItemEvent...
 ```
 
 Its also a good idea to inspect the message queue to ensure the necessary events have been
-sent. This can be done using the Kafka UI that spins up as part of the Docker Compose:
+sent. This can be done using the Event Store's Stream Browser that spins up as part of the Docker Compose:
 
 ````
-http://localhost:8080/ui/clusters/kafka/all-topics/HeroFoundItemEvent
+http://localhost:2113/web/index.html#/streams/hero-stream
 ````
 
 ## Stay in touch
